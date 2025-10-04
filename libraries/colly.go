@@ -47,44 +47,59 @@ func CrawlWebsite(website string) []models.Page {
 	c.SetRequestTimeout(15 * time.Second)
 
 	c.OnHTML("title", func(e *colly.HTMLElement) {
-	    url := e.Request.URL.String()
-	    if !seen[url] {
-	        seen[url] = true
-	        results = append(results, models.Page{
-	            URL:   url,
-	            Title: e.Text,
-	        })
-	        fmt.Printf("Saved: %s | %s\n", url, e.Text)
-	    } else {
-	        for i := range results {
-	            if results[i].URL == url && results[i].Title == "" {
-	                results[i].Title = e.Text
-	                fmt.Printf("Updated title for: %s | %s\n", url, e.Text)
-	            }
-	        }
-	    }
+		url := e.Request.URL.String()
+		if !seen[url] {
+			seen[url] = true
+			results = append(results, models.Page{
+				URL:     url,
+				Title:   e.Text,
+				Content: "",
+			})
+			fmt.Printf("Saved: %s | %s\n", url, e.Text)
+		} else {
+			for i := range results {
+				if results[i].URL == url && results[i].Title == "" {
+					results[i].Title = e.Text
+					fmt.Printf("Updated title for: %s | %s\n", url, e.Text)
+				}
+			}
+		}
+	})
+
+	c.OnHTML("body", func(e *colly.HTMLElement) {
+		url := e.Request.URL.String()
+		content := strings.TrimSpace(e.Text)
+
+		for i := range results {
+			if results[i].URL == url {
+				results[i].Content = content
+				fmt.Printf("Updated content for: %s (length: %d)\n", url, len(content))
+				break
+			}
+		}
 	})
 
 	c.OnHTML("a[href]", func(e *colly.HTMLElement) {
-    link := e.Request.AbsoluteURL(e.Attr("href"))
-    if link == "" {
-        return
-    }
+		link := e.Request.AbsoluteURL(e.Attr("href"))
+		if link == "" {
+			return
+		}
 
-    if !seen[link] {
-        seen[link] = true
-        results = append(results, models.Page{
-            URL:   link,
-            Title: "",
-        })
-        fmt.Println("Found link:", link)
-    }
+		if !seen[link] {
+			seen[link] = true
+			results = append(results, models.Page{
+				URL:     link,
+				Title:   "",
+				Content: "",
+			})
+			fmt.Println("Found link:", link)
+		}
 
-    if linkURL, err := url.Parse(link); err == nil {
-	        if strings.HasSuffix(linkURL.Hostname(), host) {
-	            e.Request.Visit(link)
-	        }
-	    }
+		if linkURL, err := url.Parse(link); err == nil {
+			if strings.HasSuffix(linkURL.Hostname(), host) {
+				e.Request.Visit(link)
+			}
+		}
 	})
 
 	c.OnError(func(r *colly.Response, err error) {
