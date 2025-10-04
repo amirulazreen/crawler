@@ -1,55 +1,47 @@
 package library
 
-type OpenAIRequest struct {
-	Model string `json:"model"`
-	Input string `json:"input"`
-	Store bool   `json:"store"`
+type Request struct {
+	Model    string    `json:"model"`
+	Messages []Message `json:"messages"`
 }
 
-type OpenAIResponse struct {
-	ID     string `json:"id"`
-	Object string `json:"object"`
-	Data   []struct {
-		Index     int       `json:"index"`
-		Embedding []float64 `json:"embedding"`
-	} `json:"data"`
-	Model string `json:"model"`
-	Usage struct {
-		PromptTokens int `json:"prompt_tokens"`
-		TotalTokens  int `json:"total_tokens"`
-	} `json:"usage"`
+type Response struct {
+	ID       string   `json:"id"`
+	Object   string   `json:"object"`
+	Created  int64    `json:"created"`
+	Model    string   `json:"model"`
+	Metadata Metadata `json:"metadata"`
+	Prompt   []any    `json:"prompt"`
+	Choices  []Choice `json:"choices"`
+	Usage    Usage    `json:"usage"`
 }
 
-// Text generation structures for chat completions
-type ChatMessage struct {
+type Message struct {
 	Role    string `json:"role"`
 	Content string `json:"content"`
 }
 
-type ChatCompletionRequest struct {
-	Model       string        `json:"model"`
-	Messages    []ChatMessage `json:"messages"`
-	MaxTokens   int           `json:"max_tokens,omitempty"`
-	Temperature float64       `json:"temperature,omitempty"`
+type Metadata struct {
+	WeightVersion string `json:"weight_version"`
 }
 
-type ChatCompletionResponse struct {
-	ID      string `json:"id"`
-	Object  string `json:"object"`
-	Created int64  `json:"created"`
-	Model   string `json:"model"`
-	Choices []struct {
-		Index   int `json:"index"`
-		Message struct {
-			Role      string `json:"role"`
-			Content   string `json:"content"`
-			Reasoning string `json:"reasoning"`
-		} `json:"message"`
-		FinishReason string `json:"finish_reason"`
-	} `json:"choices"`
-	Usage struct {
-		PromptTokens     int `json:"prompt_tokens"`
-		CompletionTokens int `json:"completion_tokens"`
-		TotalTokens      int `json:"total_tokens"`
-	} `json:"usage"`
+type Choice struct {
+	Index        int       `json:"index"`
+	Message      MessageEx `json:"message"`
+	Logprobs     any       `json:"logprobs"`
+	FinishReason string    `json:"finish_reason"`
+	Seed         any       `json:"seed"`
+}
+
+type MessageEx struct {
+	Role      string `json:"role"`
+	Content   string `json:"content"`
+	ToolCalls []any  `json:"tool_calls"`
+	Reasoning string `json:"reasoning"`
+}
+
+type Usage struct {
+	PromptTokens     int `json:"prompt_tokens"`
+	TotalTokens      int `json:"total_tokens"`
+	CompletionTokens int `json:"completion_tokens"`
 }

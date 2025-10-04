@@ -3,16 +3,12 @@ package main
 import (
 	"fmt"
 
-	"github.com/joho/godotenv"
 	// chip "github.com/amirulazreen/chip-crawler/src"
 	libraries "github.com/amirulazreen/chip-crawler/libraries"
+	models "github.com/amirulazreen/chip-crawler/libraries/models"
 )
 
 func main() {
-	err := godotenv.Load()
-	if err != nil {
-		fmt.Println("Warning: .env file not found, using system environment variables")
-	}
 
 	// if len(os.Args) < 2 {
 	// 	fmt.Println("Usage: go run main.go <website_url>")
@@ -26,7 +22,14 @@ func main() {
 
 	// Option 2: Generate text using OpenAI
 
-	text, err := libraries.GenerateText("write a haiku about ai ")
+	param := models.Request{
+		Model: "openai/gpt-oss-20b",
+		Messages: []models.Message{
+			{Role: "user", Content: "write a haiku about ai with 3 lines"},
+		},
+	}
+
+	text, err := libraries.GenerateText(param)
 	if err != nil {
 		fmt.Printf("Error generating text: %v\n", err)
 		return
