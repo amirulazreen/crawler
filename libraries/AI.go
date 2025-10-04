@@ -12,6 +12,9 @@ import (
 )
 
 func GenerateText(param models.Request) (string, error) {
+	inputToken := 0
+	outputToken := 0
+
 	godotenv.Load()
 	apiKey := os.Getenv("TOGETHER_AI_KEY")
 	if apiKey == "" {
@@ -19,10 +22,9 @@ func GenerateText(param models.Request) (string, error) {
 	}
 
 	reqBody := models.Request{
-		Model: param.Model,
-		Messages: []models.Message{
-			{Role: param.Messages[0].Role, Content: param.Messages[0].Content},
-		},
+		Model:       param.Model,
+		Temperature: param.Temperature,
+		Messages:    param.Messages,
 	}
 
 	jsonData, err := json.Marshal(reqBody)
@@ -57,6 +59,12 @@ func GenerateText(param models.Request) (string, error) {
 	if len(res.Choices) == 0 {
 		return "", fmt.Errorf("no choices returned from API")
 	}
+
+	inputToken = res.Usage.PromptTokens
+	outputToken = res.Usage.CompletionTokens
+
+	fmt.Println(inputToken)
+	fmt.Println(outputToken)
 
 	return res.Choices[0].Message.Content, nil
 }

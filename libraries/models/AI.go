@@ -2,6 +2,7 @@ package library
 
 type Request struct {
 	Model    string    `json:"model"`
+	Temperature float32	`json:"temperature"`
 	Messages []Message `json:"messages"`
 }
 
