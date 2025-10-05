@@ -1,10 +1,10 @@
-package library
+package excelize
 
 import (
 	"fmt"
 
 	helper "github.com/amirulazreen/chip-crawler/helper"
-	models "github.com/amirulazreen/chip-crawler/libraries/models"
+	models "github.com/amirulazreen/chip-crawler/libraries/colly/models"
 
 	"github.com/xuri/excelize/v2"
 )

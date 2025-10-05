@@ -26,3 +26,25 @@ func GetDomainName(website string) (string, error) {
 
 	return domain, nil
 }
+
+func RemoveDuplicateTexts(input string) string {
+	// Split the string into words (you can adjust to split by line or punctuation)
+	words := strings.Fields(input)
+
+	seen := make(map[string]bool)
+	var result []string
+
+	for _, word := range words {
+		normalized := strings.ToLower(strings.TrimSpace(word))
+		if normalized == "" {
+			continue
+		}
+
+		if !seen[normalized] {
+			seen[normalized] = true
+			result = append(result, word) // keep original case
+		}
+	}
+
+	return strings.Join(result, " ")
+}

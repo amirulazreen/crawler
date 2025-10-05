@@ -1,4 +1,4 @@
-package library
+package togetherai
 
 import (
 	"bytes"
@@ -7,18 +7,17 @@ import (
 	"net/http"
 	"os"
 
-	models "github.com/amirulazreen/chip-crawler/libraries/models"
+	models "github.com/amirulazreen/chip-crawler/libraries/together_ai/models"
 	"github.com/joho/godotenv"
 )
 
-func GenerateText(param models.Request) (string, error) {
-	inputToken := 0
-	outputToken := 0
+func GenerateText(param models.Request) (models.SummarizeData, error) {
+	result := models.SummarizeData{}
 
 	godotenv.Load()
 	apiKey := os.Getenv("TOGETHER_AI_KEY")
 	if apiKey == "" {
-		return "", fmt.Errorf("missing API key")
+		return result, fmt.Errorf("missing API key")
 	}
 
 	reqBody := models.Request{
@@ -29,12 +28,12 @@ func GenerateText(param models.Request) (string, error) {
 
 	jsonData, err := json.Marshal(reqBody)
 	if err != nil {
-		return "", fmt.Errorf("failed to marshal request: %v", err)
+		return result, fmt.Errorf("failed to marshal request: %v", err)
 	}
 
 	req, err := http.NewRequest("POST", "https://api.together.xyz/v1/chat/completions", bytes.NewBuffer(jsonData))
 	if err != nil {
-		return "", fmt.Errorf("failed to create request: %v", err)
+		return result, fmt.Errorf("failed to create request: %v", err)
 	}
 
 	req.Header.Set("Authorization", "Bearer "+apiKey)
@@ -43,28 +42,28 @@ func GenerateText(param models.Request) (string, error) {
 	client := &http.Client{}
 	resp, err := client.Do(req)
 	if err != nil {
-		return "", fmt.Errorf("failed to send request: %v", err)
+		return result, fmt.Errorf("failed to send request: %v", err)
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
-		return "", fmt.Errorf("API returned status: %s", resp.Status)
+		return result, fmt.Errorf("API returned status: %s", resp.Status)
 	}
 
 	var res models.Response
 	if err := json.NewDecoder(resp.Body).Decode(&res); err != nil {
-		return "", fmt.Errorf("failed to decode response: %v", err)
+		return result, fmt.Errorf("failed to decode response: %v", err)
 	}
 
 	if len(res.Choices) == 0 {
-		return "", fmt.Errorf("no choices returned from API")
+		return result, fmt.Errorf("no choices returned from API")
 	}
 
-	inputToken = res.Usage.PromptTokens
-	outputToken = res.Usage.CompletionTokens
+	result.Content = res.Choices[0].Message.Content
+	result.Usage.PromptTokens = res.Usage.PromptTokens
+	result.Usage.CompletionTokens = res.Usage.CompletionTokens
 
-	fmt.Println(inputToken)
-	fmt.Println(outputToken)
+	fmt.Println(res.Choices[0].Message.Content)
 
-	return res.Choices[0].Message.Content, nil
+	return result, nil
 }

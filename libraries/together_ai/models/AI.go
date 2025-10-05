@@ -1,5 +1,10 @@
 package library
 
+type SummarizeData struct {
+	Content string `json:"content"`
+	Usage    Usage    `json:"usage"`
+}
+
 type Request struct {
 	Model    string    `json:"model"`
 	Temperature float32	`json:"temperature"`

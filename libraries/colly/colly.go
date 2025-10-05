@@ -1,4 +1,4 @@
-package library
+package colly
 
 import (
 	"crypto/tls"
@@ -9,7 +9,7 @@ import (
 	"strings"
 	"time"
 
-	models "github.com/amirulazreen/chip-crawler/libraries/models"
+	models "github.com/amirulazreen/chip-crawler/libraries/colly/models"
 
 	"github.com/gocolly/colly/v2"
 )
@@ -55,12 +55,10 @@ func CrawlWebsite(website string) []models.Page {
 				Title:   e.Text,
 				Content: "",
 			})
-			fmt.Printf("Saved: %s | %s\n", url, e.Text)
 		} else {
 			for i := range results {
 				if results[i].URL == url && results[i].Title == "" {
 					results[i].Title = e.Text
-					fmt.Printf("Updated title for: %s | %s\n", url, e.Text)
 				}
 			}
 		}
@@ -73,7 +71,6 @@ func CrawlWebsite(website string) []models.Page {
 		for i := range results {
 			if results[i].URL == url {
 				results[i].Content = content
-				fmt.Printf("Updated content for: %s (length: %d)\n", url, len(content))
 				break
 			}
 		}
