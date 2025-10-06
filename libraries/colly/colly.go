@@ -19,6 +19,7 @@ func CrawlWebsite(website string) []models.Page {
 	var results []models.Page
 	seen := make(map[string]bool)
 
+	fmt.Println("Found links")
 	u, err := url.Parse(website)
 	if err != nil {
 		log.Fatal(err)
@@ -46,7 +47,6 @@ func CrawlWebsite(website string) []models.Page {
 		RandomDelay: 300 * time.Millisecond,
 	})
 
-	// Optimized HTTP transport for better performance
 	c.WithTransport(&http.Transport{
 		TLSClientConfig: &tls.Config{
 			InsecureSkipVerify: false,
@@ -124,7 +124,7 @@ func CrawlWebsite(website string) []models.Page {
 				Title:   "",
 				Content: "",
 			})
-			fmt.Println("Found link:", link)
+			fmt.Println(link)
 		}
 
 		if linkURL, err := url.Parse(link); err == nil {
@@ -134,13 +134,13 @@ func CrawlWebsite(website string) []models.Page {
 		}
 	})
 
-	c.OnError(func(r *colly.Response, err error) {
-		fmt.Println("Error:", r.Request.URL, err)
-	})
+	// c.OnError(func(r *colly.Response, err error) {
+	// 	fmt.Println("Error:", r.Request.URL, err)
+	// })
 
-	c.OnResponse(func(r *colly.Response) {
-		fmt.Printf("Visited: %s (Status: %d)\n", r.Request.URL, r.StatusCode)
-	})
+	// c.OnResponse(func(r *colly.Response) {
+	// 	fmt.Printf("Visited: %s (Status: %d)\n", r.Request.URL, r.StatusCode)
+	// })
 
 	c.OnRequest(func(r *colly.Request) {
 		if len(results) > 1000 {
