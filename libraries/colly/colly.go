@@ -81,7 +81,14 @@ func CrawlWebsite(website string) []models.Page {
 
 	c.OnHTML("body", func(e *colly.HTMLElement) {
 		url := e.Request.URL.String()
+
+		// Extract only text content, stripping all HTML tags
 		content := strings.TrimSpace(e.Text)
+
+		// Clean up extra whitespace and normalize text
+		content = strings.ReplaceAll(content, "\n\n\n", "\n\n") // Remove excessive newlines
+		content = strings.ReplaceAll(content, "  ", " ")        // Remove double spaces
+		content = strings.TrimSpace(content)                    // Trim leading/trailing whitespace
 
 		for i := range results {
 			if results[i].URL == url {
