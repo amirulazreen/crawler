@@ -47,7 +47,7 @@ type MessageEx struct {
 }
 
 type Usage struct {
-	PromptTokens     int `json:"prompt_tokens"`
-	TotalTokens      int `json:"total_tokens"`
-	CompletionTokens int `json:"completion_tokens"`
+	PromptTokens     float64 `json:"prompt_tokens"`
+	TotalTokens      float64 `json:"total_tokens"`
+	CompletionTokens float64 `json:"completion_tokens"`
 }

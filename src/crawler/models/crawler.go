@@ -13,7 +13,7 @@ type WebsiteSummary struct {
 	Summary     string
 	Topic       []string
 	RiskLevel   string
-	InputToken  int
-	OutputToken int
+	InputToken  float64
+	OutputToken float64
 	Page        []colly.Page `json:"page"`
 }
