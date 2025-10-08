@@ -82,13 +82,10 @@ func CrawlWebsite(website string) []models.Page {
 	c.OnHTML("body", func(e *colly.HTMLElement) {
 		url := e.Request.URL.String()
 
-		// Extract only text content, stripping all HTML tags
 		content := strings.TrimSpace(e.Text)
-
-		// Clean up extra whitespace and normalize text
-		content = strings.ReplaceAll(content, "\n\n\n", "\n\n") // Remove excessive newlines
-		content = strings.ReplaceAll(content, "  ", " ")        // Remove double spaces
-		content = strings.TrimSpace(content)                    // Trim leading/trailing whitespace
+		content = strings.ReplaceAll(content, "\n\n\n", "\n\n")
+		content = strings.ReplaceAll(content, "  ", " ")
+		content = strings.TrimSpace(content)
 
 		for i := range results {
 			if results[i].URL == url {
@@ -140,14 +137,6 @@ func CrawlWebsite(website string) []models.Page {
 			}
 		}
 	})
-
-	// c.OnError(func(r *colly.Response, err error) {
-	// 	fmt.Println("Error:", r.Request.URL, err)
-	// })
-
-	// c.OnResponse(func(r *colly.Response) {
-	// 	fmt.Printf("Visited: %s (Status: %d)\n", r.Request.URL, r.StatusCode)
-	// })
 
 	c.OnRequest(func(r *colly.Request) {
 		if len(results) > 1000 {

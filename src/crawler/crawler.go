@@ -98,16 +98,6 @@ func Crawler(website string) (models.WebsiteSummary, error) {
 	return result, nil
 }
 
-// fmt.Println("Saving urls into excel..")
-
-// domain, err := libraries.SaveToExcel(urls, website)
-// if err != nil {
-// 	log.Fatalf("error: Fail to save %v", err)
-// }
-
-// fmt.Printf("✅ All links saved to %s.xlsx\n", domain)
-
-// Helper function to extract content from pages
 func getContentFromPages(pages []collymodels.Page) string {
 	var content strings.Builder
 	for _, page := range pages {
