@@ -29,12 +29,21 @@ func Crawler(website string) (models.WebsiteSummary, error) {
 		feeder += scrapedData[i].Content
 	}
 
+
+
 	prompt := []aimodels.Message{
 		{
 			Role: "system",
+			// Content: `You are a website content risk analyzer. For each page,
+			// 		you will summarize it and rank risk level: high (gambling, alcohol, adult), medium (marketing, crypto), low (safe, educational).
+			// 		Return JSON with fields: summary, topics, and risk_level.`,
 			Content: `You are a website content risk analyzer. For each page,
 					you will summarize it and rank risk level: high (gambling, alcohol, adult), medium (marketing, crypto), low (safe, educational).
-					Return JSON with fields: summary, topics, and risk_level.`,
+					You will tell the known financial, reputation, law, or operation risk.
+				 	You will tell whether the company put company name and company number related to Malaysia law (SSM, ROS, SKM),
+					You will list out the required documents for due diligence,
+					You will make a simple checklist in bullet points for me to check the said documents,
+					Return JSON with fields: summary, topics, website type, required_documents, risk_level`,
 		},
 		{
 			Role:    "user",
@@ -64,6 +73,11 @@ func Crawler(website string) (models.WebsiteSummary, error) {
 	result.Summary = aiResponse.Content
 	result.InputToken = aiResponse.Usage.PromptTokens
 	result.OutputToken = aiResponse.Usage.CompletionTokens
+
+	cost := (result.InputToken * 0.005) + (result.OutputToken * 0.020)
+
+	fmt.Println(feeder)
+	fmt.Printf("Cost: %.2f\n", cost/1_000_000)
 
 	return result, nil
 }
