@@ -82,10 +82,12 @@ func CrawlWebsite(website string) []models.Page {
 	c.OnHTML("body", func(e *colly.HTMLElement) {
 		url := e.Request.URL.String()
 
+
 		content := strings.TrimSpace(e.Text)
 		content = strings.ReplaceAll(content, "\n\n\n", "\n\n")
 		content = strings.ReplaceAll(content, "  ", " ")
 		content = strings.TrimSpace(content)
+
 
 		for i := range results {
 			if results[i].URL == url {
@@ -137,6 +139,7 @@ func CrawlWebsite(website string) []models.Page {
 			}
 		}
 	})
+
 
 	c.OnRequest(func(r *colly.Request) {
 		if len(results) > 1000 {
