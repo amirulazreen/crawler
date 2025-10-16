@@ -10,6 +10,7 @@ go run main.go <<website_name>>
 ```
 
 ### Settings
+Refer `settings.go` file in `src/controller` folder
 | setting | Value |
 | --- | --- |
 | instuction | prompt based on what you need |
