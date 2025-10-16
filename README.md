@@ -1,15 +1,21 @@
 # crawler
 
-### Prerequisites:
+### 1) Prerequisites:
 1. `Together AI API key`
 
-### Command:
+### 2) Command:
 Run this command to crawl website. make sure the API Key have been provided.
 ```
 go run main.go <<website_name>>
 ```
 
-### Settings
+### Build (Optional) :
+Run this command to create binary file
+```
+go build -o <<file_name>>
+```
+
+### Settings (Optional) :
 Refer `settings.go` file in `src/controller` folder for configureable settings.
 | setting | Value |
 | --- | --- |
