@@ -10,10 +10,10 @@ go run main.go <<website_name>>
 ```
 
 ### Settings
-Refer `settings.go` file in `src/controller` folder
+Refer `settings.go` file in `src/controller` folder for configureable settings.
 | setting | Value |
 | --- | --- |
-| instuction | prompt based on what you need |
+| instruction | prompt based on what you need |
 | AIModel | Refer Together AI website for AI model available |
 | Cost | Refer Together AI website for model cost |
 
