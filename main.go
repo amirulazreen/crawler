@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"os"
 
-	chip "github.com/amirulazreen/chip-crawler/src/crawler"
+	chip "github.com/amirulazreen/chip-crawler/src/controller"
 )
 
 func main() {
@@ -15,7 +15,7 @@ func main() {
 
 	website := os.Args[1]
 
-	result, err := chip.Crawler(website)
+	result, err := chip.Controller(website)
 	if err != nil {
 		fmt.Println(err)
 
