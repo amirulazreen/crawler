@@ -4,7 +4,7 @@
 1. `Together AI API key`
 
 ### Command:
-Run this command to crawl website 
+Run this command to crawl website. make sure the API Key have been provided.
 ```
 go run main.go <<website_name>>
 ```
