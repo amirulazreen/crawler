@@ -33,9 +33,9 @@ func Crawler(website string) (models.WebsiteSummary, error) {
 		{
 			Role: "system",
 			Content: `You are a Website Content Risk Analyzer.
-		
+
 			Your task is to analyze the content of a given webpage and produce a structured JSON output.
-			
+
 			You must:
 			1. Provide a concise summary of the webpage.
 			2. Identify key topics or themes.
@@ -48,7 +48,7 @@ func Crawler(website string) (models.WebsiteSummary, error) {
 			6. Determine whether the company lists official registration details relevant to Malaysian law (e.g., SSM, ROS, SKM).
 			7. List all required documents typically needed for due diligence verification.
 			8. Provide a short, clear checklist (in bullet points) to verify the presence and validity of those documents.
-			
+
 			Return the result in **JSON format** with the following fields:
 			{
 				"summary": "string",
@@ -68,7 +68,7 @@ func Crawler(website string) (models.WebsiteSummary, error) {
 	}
 
 	param := aimodels.Request{
-		Model:       OpenAIOSS,
+		Model:       LlamaMarverick,
 		Temperature: 0.2,
 		Messages:    prompt,
 	}
