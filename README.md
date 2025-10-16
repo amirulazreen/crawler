@@ -16,3 +16,6 @@ Refer `settings.go` file in `src/controller` folder
 | instuction | prompt based on what you need |
 | AIModel | Refer Together AI website for AI model available |
 | Cost | Refer Together AI website for model cost |
+
+### Together AI available models
+https://api.together.ai/models
