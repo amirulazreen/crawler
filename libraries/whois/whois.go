@@ -45,10 +45,13 @@ func GetWhoisData(param models.WhoIsRequest) (models.WhoisPartialResult, error) 
 		return result, fmt.Errorf("failed to parse response: %w", err)
 	}
 
+	AvgMonth := 30.44
+	estimatedMonth := float64(partial.WhoisRecord.EstimatedDomainAge) / AvgMonth
+
 	result.DomainName = partial.WhoisRecord.DomainName
 	result.CreatedDate = "Created Date: " + partial.WhoisRecord.CreatedDate.Format("2006-01-02")
 	result.Country = "Country: " + partial.WhoisRecord.Registrant.Country
-	result.EstimatedDomainAge = "Estimated age: " + strconv.Itoa(partial.WhoisRecord.EstimatedDomainAge)
+	result.EstimatedDomainAge = "Estimated age: " + strconv.Itoa(int(estimatedMonth)) + " months"
 
 	return result, nil
 }
