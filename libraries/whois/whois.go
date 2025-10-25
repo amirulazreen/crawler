@@ -1,19 +1,19 @@
 package whois
 
 import (
-	"bytes"
 	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
 	"os"
+	"strconv"
 
 	models "github.com/amirulazreen/chip-crawler/libraries/whois/models"
 	"github.com/joho/godotenv"
 )
 
-func GetWhoisData(param models.WhoIsRequest) (models.WhoisResponse, error) {
-	result := models.WhoisResponse{}
+func GetWhoisData(param models.WhoIsRequest) (models.WhoisPartialResult, error) {
+	result := models.WhoisPartialResult{}
 
 	godotenv.Load()
 	apiKey := os.Getenv("WHOIS_KEY")
@@ -21,18 +21,12 @@ func GetWhoisData(param models.WhoIsRequest) (models.WhoisResponse, error) {
 		return result, fmt.Errorf("missing WHOIS API key")
 	}
 
-	param.APIKey = apiKey
-
-	jsonData, err := json.Marshal(param)
-	if err != nil {
-		return result, fmt.Errorf("failed to marshal json: %w", err)
-	}
-
-	req, err := http.NewRequest("POST", "https://www.whoisxmlapi.com/whoisserver/WhoisService", bytes.NewBuffer(jsonData))
-	if err != nil {
-		return result, fmt.Errorf("failed to create request: %w", err)
-	}
-	req.Header.Set("Content-Type", "application/json")
+	url := fmt.Sprintf(
+		"https://www.whoisxmlapi.com/whoisserver/WhoisService?outputFormat=JSON&domainName=%s&apiKey=%s",
+		param.Website,
+		apiKey,
+	)
+	req, _ := http.NewRequest("GET", url, nil)
 
 	client := &http.Client{}
 	resp, err := client.Do(req)
@@ -46,7 +40,15 @@ func GetWhoisData(param models.WhoIsRequest) (models.WhoisResponse, error) {
 		return result, fmt.Errorf("failed to read response: %w", err)
 	}
 
-	fmt.Println(&body)
+	var partial models.WhoisPartialResponse
+	if err := json.Unmarshal(body, &partial); err != nil {
+		return result, fmt.Errorf("failed to parse response: %w", err)
+	}
+
+	result.DomainName = partial.WhoisRecord.DomainName
+	result.CreatedDate = "Created Date: " + partial.WhoisRecord.CreatedDate.Format("2006-01-02")
+	result.Country = "Country: " + partial.WhoisRecord.Registrant.Country
+	result.EstimatedDomainAge = "Estimated age: " + strconv.Itoa(partial.WhoisRecord.EstimatedDomainAge)
 
 	return result, nil
 }

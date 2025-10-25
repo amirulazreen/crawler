@@ -1,8 +1,28 @@
 package models
 
+import "time"
+
 type WhoIsRequest struct {
 	Website string
 	APIKey  string
+}
+
+type WhoisPartialResponse struct {
+	WhoisRecord struct {
+		DomainName  string    `json:"domainName"`
+		CreatedDate time.Time `json:"createdDate"`
+		Registrant  struct {
+			Country string `json:"country"`
+		}
+		EstimatedDomainAge int `json:"estimatedDomainAge"`
+	} `json:"WhoisRecord"`
+}
+
+type WhoisPartialResult struct {
+	DomainName         string
+	CreatedDate        string
+	Country            string
+	EstimatedDomainAge string
 }
 
 type WhoisResponse struct {
