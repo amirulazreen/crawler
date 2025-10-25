@@ -17,7 +17,7 @@ func GenerateText(param models.Request) (models.SummarizeData, error) {
 	godotenv.Load()
 	apiKey := os.Getenv("TOGETHER_AI_KEY")
 	if apiKey == "" {
-		return result, fmt.Errorf("missing API key")
+		return result, fmt.Errorf("missing AI API key")
 	}
 
 	reqBody := models.Request{
