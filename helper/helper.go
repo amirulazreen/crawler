@@ -1,8 +1,11 @@
 package library
 
 import (
+	"fmt"
 	"net/url"
 	"strings"
+
+	collymodels "github.com/amirulazreen/chip-crawler/libraries/colly/models"
 )
 
 func Sanitize(s string) string {
@@ -47,4 +50,12 @@ func RemoveDuplicateTexts(input string) string {
 	}
 
 	return strings.Join(result, " ")
+}
+
+func GetContentFromPages(pages []collymodels.Page) string {
+	var content strings.Builder
+	for _, page := range pages {
+		content.WriteString(fmt.Sprintf("URL: %s\nTitle: %s\nContent: %s\n\n", page.URL, page.Title, page.Content))
+	}
+	return content.String()
 }

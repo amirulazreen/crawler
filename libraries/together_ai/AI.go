@@ -5,19 +5,15 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"os"
 
 	models "github.com/amirulazreen/chip-crawler/libraries/together_ai/models"
-	"github.com/joho/godotenv"
 )
 
 func GenerateText(param models.Request) (models.SummarizeData, error) {
 	result := models.SummarizeData{}
 
-	godotenv.Load()
-	apiKey := os.Getenv("TOGETHER_AI_KEY")
-	if apiKey == "" {
-		return result, fmt.Errorf("missing AI API key")
+	if param.APIKey == "" {
+		return result, fmt.Errorf("missing Together AI API key")
 	}
 
 	reqBody := models.Request{
@@ -36,7 +32,7 @@ func GenerateText(param models.Request) (models.SummarizeData, error) {
 		return result, fmt.Errorf("failed to create request: %v", err)
 	}
 
-	req.Header.Set("Authorization", "Bearer "+apiKey)
+	req.Header.Set("Authorization", "Bearer "+param.APIKey)
 	req.Header.Set("Content-Type", "application/json")
 
 	client := &http.Client{}
@@ -62,8 +58,6 @@ func GenerateText(param models.Request) (models.SummarizeData, error) {
 	result.Content = res.Choices[0].Message.Content
 	result.Usage.PromptTokens = res.Usage.PromptTokens
 	result.Usage.CompletionTokens = res.Usage.CompletionTokens
-
-	fmt.Println(res.Choices[0].Message.Content)
 
 	return result, nil
 }

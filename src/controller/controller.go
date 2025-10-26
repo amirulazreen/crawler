@@ -2,12 +2,9 @@ package controller
 
 import (
 	"fmt"
-	"log"
-	"strings"
 
 	helper "github.com/amirulazreen/chip-crawler/helper"
 	colly "github.com/amirulazreen/chip-crawler/libraries/colly"
-	collymodels "github.com/amirulazreen/chip-crawler/libraries/colly/models"
 	ai "github.com/amirulazreen/chip-crawler/libraries/together_ai"
 	aimodels "github.com/amirulazreen/chip-crawler/libraries/together_ai/models"
 	whois "github.com/amirulazreen/chip-crawler/libraries/whois"
@@ -15,80 +12,63 @@ import (
 	models "github.com/amirulazreen/chip-crawler/src/controller/models"
 )
 
-func Controller(website string) (models.WebsiteSummary, error) {
+func Controller(param models.Configs) (models.WebsiteSummary, error) {
 	result := models.WebsiteSummary{}
 
-	scrapedData := colly.CrawlWebsite(website)
-	if len(scrapedData) < 1 {
-		log.Fatal("error: No link found")
+	collyResponse := colly.CrawlWebsite(param.Website)
+	if len(collyResponse) < 1 {
+		return result, fmt.Errorf("error:colly:no link found")
 	}
 
-	result.Website = website
-	result.Page = scrapedData
-
-	var feeder string
-	for i := range scrapedData {
-		feeder += scrapedData[i].Content
+	var scrapedHTML string
+	for i := range collyResponse {
+		scrapedHTML += collyResponse[i].Content
 	}
 
 	prompt := []aimodels.Message{
 		instruction,
 		{
 			Role:    "user",
-			Content: fmt.Sprintf("Analyze this webpage:\n\n%s", helper.RemoveDuplicateTexts(feeder)),
+			Content: fmt.Sprintf("Analyze this webpage:\n\n%s", helper.RemoveDuplicateTexts(scrapedHTML)),
 		},
 	}
 
-	param := aimodels.Request{
+	aiParam := aimodels.Request{
+		APIKey:      param.TogetherAIPIKey,
 		Model:       AIModel,
 		Temperature: 0.2,
 		Messages:    prompt,
 	}
 
-	aiResponse, err := ai.GenerateText(param)
+	aiResponse, err := ai.GenerateText(aiParam)
 	if err != nil {
-		fmt.Printf("Error generating text: %v\n", err)
-		return result, err
+		return result, fmt.Errorf("error:togetherAI:%v", err)
 	}
 
-	urls := make([]string, len(scrapedData))
-	for i, page := range scrapedData {
+	urls := make([]string, len(collyResponse))
+	for i, page := range collyResponse {
 		urls[i] = page.URL
 	}
 
-	result.URLS = urls
-	result.Content = getContentFromPages(scrapedData)
-	result.Summary = aiResponse.Content
-	result.InputToken = aiResponse.Usage.PromptTokens
-	result.OutputToken = aiResponse.Usage.CompletionTokens
-
-	cost := (result.InputToken * InputCost) + (result.OutputToken * OutputCost)
-
 	whoisParam := whoismodels.WhoIsRequest{
-		Website: website,
+		APIKey:  param.WhoisAPIKey,
+		Website: param.Website,
 	}
 
 	whoisResponse, err := whois.GetWhoisData(whoisParam)
 	if err != nil {
-		fmt.Printf("Error getting data from Whois: %v\n", err)
-		return result, err
+		return result, fmt.Errorf("error:whois:%v", err)
 	}
 
-	fmt.Println("\nResult from Whois")
-	fmt.Println(whoisResponse.DomainName)
-	fmt.Println(whoisResponse.Country)
-	fmt.Println(whoisResponse.CreatedDate)
-	fmt.Println(whoisResponse.EstimatedDomainAge)
-
-	fmt.Printf("\nCost per crawl: $ %.6f\n", cost/1_000_000)
+	result.Website = param.Website
+	result.Page = collyResponse
+	result.URLS = urls
+	result.Content = helper.GetContentFromPages(collyResponse)
+	result.Summary = aiResponse.Content
+	result.InputToken = aiResponse.Usage.PromptTokens
+	result.OutputToken = aiResponse.Usage.CompletionTokens
+	result.TotalCost = (result.InputToken * InputCost) + (result.OutputToken * OutputCost)
+	result.WhoisResult = whoisResponse
 
 	return result, nil
-}
-
-func getContentFromPages(pages []collymodels.Page) string {
-	var content strings.Builder
-	for _, page := range pages {
-		content.WriteString(fmt.Sprintf("URL: %s\nTitle: %s\nContent: %s\n\n", page.URL, page.Title, page.Content))
-	}
-	return content.String()
 }

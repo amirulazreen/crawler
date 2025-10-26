@@ -5,6 +5,8 @@ import (
 	"os"
 
 	chip "github.com/amirulazreen/chip-crawler/src/controller"
+	"github.com/amirulazreen/chip-crawler/src/controller/models"
+	"github.com/joho/godotenv"
 )
 
 func main() {
@@ -13,12 +15,24 @@ func main() {
 		os.Exit(1)
 	}
 
-	website := os.Args[1]
+	godotenv.Load()
+	param := models.Configs{
+		Website:         os.Args[1],
+		TogetherAIPIKey: os.Getenv("TOGETHER_AI_KEY"),
+		WhoisAPIKey:     os.Getenv("WHOIS_KEY"),
+	}
 
-	result, err := chip.Controller(website)
+	result, err := chip.Controller(param)
 	if err != nil {
 		fmt.Println(err)
-
-		fmt.Println(result.InputToken, result.OutputToken)
 	}
+
+	fmt.Println(result.Summary)
+	fmt.Println("\nResult from Whois")
+	fmt.Println(result.WhoisResult.DomainName)
+	fmt.Println(result.WhoisResult.Country)
+	fmt.Println(result.WhoisResult.CreatedDate)
+	fmt.Println(result.WhoisResult.EstimatedDomainAge)
+
+	fmt.Printf("\nCost per crawl: $ %.6f\n", result.TotalCost/1_000_000)
 }
